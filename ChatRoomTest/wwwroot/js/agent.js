@@ -1,37 +1,117 @@
-﻿﻿var activeRoomId = '';
-var UserForm = document.getElementById("userDefine");
+﻿var activeRoomId = '';
+var UserForm = document.getElementById('userDefine');
 var userName = '';
-UserForm.onsubmit(function (e) {
-    e.preventDefault();
-
-    userName = e.target[0].value;
-    UserForm.hide();
-
-});
-// TODO: Initialize hub connections
-
+var container = document.getElementById('toBlur');
+var roomListEl = document.getElementById('roomList');
+var roomHistoryEl = document.getElementById('chatHistory');
 //Initial chatHubConnection
 var chatConnection = new signalR.HubConnectionBuilder()
     .withUrl('/chatHub')
     .build();
 
 
-//make a function to start connection 
+chatConnection.onclose(function () {
+    container.classList.add('blured');
+    var enterYourNameWarningEl = document.getElementById('enterNameInfo');
+    enterYourNameWarningEl.style.display = 'block';
+    enterYourNameWarningEl.firstElementChild.text = "Disconnected From Server...";
 
-function startChatConnection() {
-    chatConnection.start()
-        .catch(function (err) {
-            console.log("!!!Atention Error:\n" + err);
-        });
+    //Try to reconnect 5 time
+    tryToReconnect();
+});
+
+function tryToReconnect() {
+    var isError = false;
+    var counter = 0;
+    var error = '';
+    while (isError || counter > 4) {
+       
+        setTimeout(function () {
+                chatConnection.start()
+                    .catch((err) => {
+                        error = err;
+                    });
+            },
+            5000);
+        counter = counter + 1;
+        isError = (error.length < 1);
+    }
+    if (isError) {
+        alert(error+'\n Please call admin...');
+    } else {
+        openChatSegment();
+    }
+}
+UserForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const isSearchFormClass = UserForm.classList.contains('searchForm');
+
+    if (isSearchFormClass) {
+        //TODO: Add Search User Name from users operation
+
+    } else {
+        //first Time Enter button press
+        userName = e.target[0].value;
+        e.target[0].value = '';
+        e.target[0].placeholder = 'Search Users...';
+        UserForm.classList.add('searchForm');
+        chatConnection.invoke('SetName', userName)
+            .catch((err) => alert("An exception accord on server side..."));
+        openChatSegment();
+    }
+});
+chatConnection.on('responseSetName', setNameResult);
+chatConnection.on('ReceiveMessage', addMessage);
+// TODO: Initialize hub connections
+
+
+////make a function to start connection 
+
+//function S() {
+//    var conresult = '';
+//    chatConnection.start()
+//        .catch(function (err) {
+//            console.alert("!!!Atention Error:\n" + err);
+//            conresult = err;
+//        });
+//    if (conresult.length > 0) {
+
+//    } else {
+//        openChatSegment();
+//    }
+
+//}
+
+//make a handle connection when connection is disconnected
+//chatConnection.onclose(function () {
+//    handleDisconnected();
+//});
+
+//handle changes of page after connection started
+function openChatSegment() {
+    container.classList.remove('blured');
+    var enterYourNameWarningEl = document.getElementById('enterNameInfo');
+    enterYourNameWarningEl.style.display = 'none';
 }
 
+//public method give handler to retry connect again to server
+//function handleDisconnected(retryFunc) {
+//    container.classList.add('blured');
+//    console.log('Reconnecting in 5 seconds...');
+//    setTimeout(retryFunc, 5000);
+//}
 
-
-
-chatConnection.on('ReceiveMessage', addMessage);
-
-
-
+function setNameResult(result) {
+    if (result) {
+        //if the user exist before
+        //ToDO: implement add history of chat
+    } else {
+        //if the user isn't exit before
+        const message = 'Hi Dear ' + userName + ' welcome to the ChatRoom';
+        const timeOffsetUtcNow = new Date().getTimezoneOffset(0);
+        addMessage(userName, timeOffsetUtcNow, message);
+    }
+}
 
 
 function sendMessage(text) {
@@ -43,7 +123,7 @@ function sendMessage(text) {
 function ready() {
     // TODO: Start the hub connections
 
-    startChatConnection();
+    chatConnection.start();
 
     var chatFormEl = document.getElementById('chatForm');
     chatFormEl.addEventListener('submit', function (e) {
@@ -72,8 +152,7 @@ function switchActiveRoomTo(id) {
 }
 
 
-var roomListEl = document.getElementById('roomList');
-var roomHistoryEl = document.getElementById('chatHistory');
+
 
 roomListEl.addEventListener('click', function (e) {
     roomHistoryEl.style.display = 'block';

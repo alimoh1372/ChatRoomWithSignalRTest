@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ChatRoomTest.Hubs;
 using ChatRoomTest.MyContext;
+using ChatRoomTest.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatRoomTest
@@ -26,9 +27,11 @@ namespace ChatRoomTest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = Configuration.GetConnectionString("Chat");
+            //string connectionString = Configuration.GetConnectionString("Chat");
+            string connectionString = Configuration.GetConnectionString("ChatHome");
             services.AddRazorPages();
             services.AddSignalR();
+            services.AddTransient<IChatRoomService, ChatRoomService>();
             services.AddDbContext<ChatRoomContext>(x => x.UseSqlServer(connectionString));
         }
 
@@ -48,7 +51,7 @@ namespace ChatRoomTest
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            
             app.UseRouting();
 
             app.UseAuthorization();
