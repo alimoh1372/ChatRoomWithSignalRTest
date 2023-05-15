@@ -207,11 +207,11 @@ function loadRooms(rooms) {
     //});
 }
 
-function createRoomButton(id, roomInfo) {
+function createRoomButton(id, userName) {
     var anchorEl = document.createElement('a');
     anchorEl.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
     anchorEl.setAttribute('data-id', id);
-    anchorEl.textContent = roomInfo.name;
+    anchorEl.textContent = userName;
     anchorEl.href = '#';
 
     return anchorEl;
