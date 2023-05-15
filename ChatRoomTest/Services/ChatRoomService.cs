@@ -93,9 +93,9 @@ namespace ChatRoomTest.Services
             return result > 0;
         }
 
-        public MessageViewModel GetLatestMessageBy(long senderId, long receiverId)
+        public async Task<MessageViewModel> GetLatestMessageBy(long senderId, long receiverId)
         {
-            return  _context.Messages
+            return await _context.Messages
                 .Include(x => x.FromUser)
                 .Include(x => x.ToUser)
                 .Select(x => new MessageViewModel
@@ -108,10 +108,10 @@ namespace ChatRoomTest.Services
                     MessageContent = x.MessageContent,
                     CreationDate = x.TimeOffset
                 })
-                .OrderBy(x=>x.Id)
-                .LastOrDefault(x => (x.FkSenderUserId == senderId && x.FkReceiverUserid == receiverId) ||
-                                    (x.FkSenderUserId==receiverId && x.FkReceiverUserid == senderId));
-            
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefaultAsync(x => (x.FkSenderUserId == senderId && x.FkReceiverUserid == receiverId) ||
+                                    (x.FkSenderUserId == receiverId && x.FkReceiverUserid == senderId));
+
         }
     }
 }

@@ -15,7 +15,7 @@ namespace ChatRoomTest.Services
 
         Task<List<MessageViewModel>> GetChatHistory(long currentUserId, long receiverUserId);
         Task<bool> AddMessage(long currentUserId, long activeUserId, string messageContent);
-        MessageViewModel GetLatestMessageBy(long senderId, long receiverId);
+        Task<MessageViewModel> GetLatestMessageBy(long senderId, long receiverId);
     }
 
     public class MessageViewModel

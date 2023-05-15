@@ -52,8 +52,8 @@ namespace ChatRoomTest.Hubs
                 return;
             try
             {
-                var latestMessage = _chatRoomService.GetLatestMessageBy(currentUserId, activeUserId);
-                var varible = 1;
+                var latestMessage =await _chatRoomService.GetLatestMessageBy(currentUserId, activeUserId);
+                
                 await Clients.All.SendAsync("ReceiveMessage", latestMessage.Id, latestMessage.FkSenderUserId,
                     latestMessage.FkSenderUserName
                     , latestMessage.FkReceiverUserName, latestMessage.FkReceiverUserName, latestMessage.CreationDate,
