@@ -4,14 +4,16 @@ using ChatRoomTest.MyContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ChatRoomTest.Migrations
 {
     [DbContext(typeof(ChatRoomContext))]
-    partial class ChatRoomContextModelSnapshot : ModelSnapshot
+    [Migration("20230515185411_AddTimeOfmessageToMessageModel")]
+    partial class AddTimeOfmessageToMessageModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

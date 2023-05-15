@@ -9,12 +9,13 @@ namespace ChatRoomTest.Models
     public class Message
     {
         public long Id { get; private set; }
+        public DateTimeOffset TimeOffset { get; private set; }
         public long FkFromUserId { get; private set; }
         public User FromUser { get; private set; }
 
         public long FkToUserId { get; private set; }
         public User ToUser { get; private set; }
-
+        
         public string MessageContent { get; private set; }
 
         public bool Like { get; private set; }
@@ -35,6 +36,7 @@ namespace ChatRoomTest.Models
             MessageContent = messageContent;
             Like = false;
             IsRead = false;
+            TimeOffset = DateTimeOffset.UtcNow;
         }
 
 

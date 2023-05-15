@@ -1,6 +1,7 @@
-﻿var activeRoomId = '';
+﻿var activeUserId = '';
 var UserForm = document.getElementById('userDefine');
 var userName = '';
+var currentUserId = '';
 var container = document.getElementById('toBlur');
 var roomListEl = document.getElementById('roomList');
 var roomHistoryEl = document.getElementById('chatHistory');
@@ -60,9 +61,14 @@ UserForm.addEventListener('submit', function (e) {
         openChatSegment();
     }
 });
+
+
+//Handler of server request
+
 chatConnection.on('responseSetName', setNameResult);
 chatConnection.on('ReceiveMessage', addMessage);
 chatConnection.on('loadUserNamesChatWithThem', loadChatList);
+chatConnection.on('responseOfLoadChatHistory',addMessages)
 // TODO: Initialize hub connections
 
 
@@ -110,21 +116,31 @@ function setNameResult(result) {
         //if the user isn't exit before
         const message = 'Hi Dear ' + userName + ' welcome to the ChatRoom';
         const timeOffsetUtcNow = new Date().getTimezoneOffset(0);
-        addMessage(userName, timeOffsetUtcNow, message);
+        addMessage(0, 'Application', 0, currentUserId, userName, timeOffsetUtcNow, message);
     }
 }
 
-function loadChatList(userNameList) {
-    debugger;
+function loadChatList(userNameList, currentUserIdInpute) {
+    
+    if (!currentUserIdInpute)
+        return;
     if (!userNameList.length)
         return;
+    currentUserId = currentUserIdInpute;
     const userNames = JSON.parse(userNameList);
+
     loadRooms(userNames);
 }
 
 function sendMessage(text) {
     if (text && text.length) {
         // TODO: Send an agent message
+        if (!currentUserId)
+            return;
+        if (!activeUserId)
+            return
+
+        chatConnection.invoke('SendMessage',currentUserId,activeUserId,text)
     }
 }
 
@@ -144,19 +160,27 @@ function ready() {
 }
 
 function switchActiveRoomTo(id) {
-    if (id === activeRoomId) return;
+    if (id === activeUserId) return;
 
-    if (activeRoomId) {
+    if (activeUserId) {
         // TODO: Leave the room
     }
 
-    activeRoomId = id;
+    activeUserId =Number(id);
+    
     removeAllChildren(roomHistoryEl);
 
     if (!id) return;
 
     // TODO: Join the room
+
     // TODO: Load the room history
+    activeUserIdNumber = Number(activeUserId);
+    chatConnection.invoke('LoadChatHistory', currentUserId, activeUserIdNumber)
+        .catch(err => {
+            alert(err);
+        });
+
 }
 
 
@@ -218,30 +242,51 @@ function createRoomButton(id, userName) {
 }
 
 function addMessages(messages) {
+   
     if (!messages) return;
-
+  
+    
     messages.forEach(function (m) {
-        addMessage(m.senderName, m.sentAt, m.text);
+        
+        const id = m.id;
+        const senderId = m.fkSenderUserId;
+        const senderName = m.fkSenderUserName;
+        const receiverId = m.fkReceiverUserid;
+        const receiverName = m.fkReceiverUserName;
+        const creationTimeStamp = m.creationDate;
+        const messageContent = m.messageContent;
+        addMessage(m.Id, senderId, senderName, receiverId, receiverName, creationTimeStamp, messageContent);
     });
 }
 
-function addMessage(name, time, message) {
+function addMessage(id,senderId,senderName,receiverId,receiverName, time, message) {
     var nameSpan = document.createElement('span');
     nameSpan.className = 'name';
-    nameSpan.textContent = name;
+    nameSpan.setAttribute('data-id', senderId);
+    nameSpan.textContent = senderName;
+
+    var recieverNameEl = document.createElement('span');
+    recieverNameEl.className = 'name';
+    recieverNameEl.textContent = receiverName;
+    recieverNameEl.setAttribute('data-id', receiverId);
 
     var timeSpan = document.createElement('span');
     timeSpan.className = 'time';
-    var friendlyTime = moment(time).format('H:mm');
+    var friendlyTime = moment(time).fromNow();
     timeSpan.textContent = friendlyTime;
 
     var headerDiv = document.createElement('div');
     headerDiv.appendChild(nameSpan);
+    var textNode = document.createTextNode(" SaidTo ");
+    headerDiv.appendChild(textNode);
+    headerDiv.appendChild(recieverNameEl);
     headerDiv.appendChild(timeSpan);
 
     var messageDiv = document.createElement('div');
     messageDiv.className = 'message';
+    messageDiv.setAttribute('data-id', id);
     messageDiv.textContent = message;
+
 
     var newItem = document.createElement('li');
     newItem.appendChild(headerDiv);

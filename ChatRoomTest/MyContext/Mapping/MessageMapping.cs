@@ -1,4 +1,5 @@
-﻿using ChatRoomTest.Models;
+﻿using System;
+using ChatRoomTest.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,7 +13,7 @@ namespace ChatRoomTest.MyContext.Mapping
             builder.HasKey(x => x.Id);
             //Design properties
             builder.Property(x => x.MessageContent).IsRequired();
-
+            builder.Property(x => x.TimeOffset).IsRequired().HasDefaultValue(DateTimeOffset.UtcNow);
 
             //Design self reference many to many 
 
@@ -27,8 +28,8 @@ namespace ChatRoomTest.MyContext.Mapping
                 .OnDelete(DeleteBehavior.NoAction);
 
 
-            ////design index for user a and b
-            //builder.HasIndex(x => new {x.FkFromUserId, x.FkToUserId});
+            //design index for user a and b
+            builder.HasIndex(x => new { x.FkFromUserId, x.FkToUserId });
 
 
 
