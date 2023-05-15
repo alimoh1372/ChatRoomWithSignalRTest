@@ -5,6 +5,7 @@ using ChatRoomTest.MyContext;
 using ChatRoomTest.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace ChatRoomTest.Hubs
 {
@@ -27,10 +28,13 @@ namespace ChatRoomTest.Hubs
             }
             else
             {
-                //TODO:Implement getting chat history of user and send to its method on client
+                //TODO:Implement getting chat history of user and send to its method on client and send all chats with client
+
+                var userListChat =await _chatRoomService.LoadUserNamesChatWithBefore(userName);
+                
+                var jsonUserList= JsonConvert.SerializeObject(userListChat);
+                await Clients.Caller.SendAsync("loadUserNamesChatWithThem", jsonUserList);
             }
-
-
         }
     }
 }

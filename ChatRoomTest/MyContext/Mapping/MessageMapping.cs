@@ -27,8 +27,8 @@ namespace ChatRoomTest.MyContext.Mapping
                 .OnDelete(DeleteBehavior.NoAction);
 
 
-            //design index for user a and b
-            builder.HasIndex(x => new {x.FkFromUserId, x.FkToUserId});
+            ////design index for user a and b
+            //builder.HasIndex(x => new {x.FkFromUserId, x.FkToUserId});
 
 
 

@@ -62,6 +62,7 @@ UserForm.addEventListener('submit', function (e) {
 });
 chatConnection.on('responseSetName', setNameResult);
 chatConnection.on('ReceiveMessage', addMessage);
+chatConnection.on('loadUserNamesChatWithThem', loadChatList);
 // TODO: Initialize hub connections
 
 
@@ -113,6 +114,13 @@ function setNameResult(result) {
     }
 }
 
+function loadChatList(userNameList) {
+    debugger;
+    if (!userNameList.length)
+        return;
+    const userNames = JSON.parse(userNameList);
+    loadRooms(userNames);
+}
 
 function sendMessage(text) {
     if (text && text.length) {
@@ -174,21 +182,29 @@ function setActiveRoomButton(el) {
 }
 
 function loadRooms(rooms) {
-    if (!rooms) return;
+    if (!rooms.length) return;
 
-    var roomIds = Object.keys(rooms);
-    if (!roomIds.length) return;
 
     switchActiveRoomTo(null);
     removeAllChildren(roomListEl);
 
-    roomIds.forEach(function (id) {
-        var roomInfo = rooms[id];
-        if (!roomInfo.name) return;
+    for (var i = 0; i < rooms.length; i++) {
+        var item = rooms[i];
+        var currentId = item.Id;
+        var currentName = item.UserName;
+        if (!currentName) continue;
 
-        var roomButton = createRoomButton(id, roomInfo);
+        var roomButton = createRoomButton(currentId, currentName);
         roomListEl.appendChild(roomButton);
-    });
+    }
+    //rooms.forEach(function (item) {
+    //    var currentId = item.id;
+    //    var currentName = item.name;
+    //    if (!currentName) return;
+
+    //    var roomButton = createRoomButton(currentId, currentName);
+    //    roomListEl.appendChild(roomButton);
+    //});
 }
 
 function createRoomButton(id, roomInfo) {

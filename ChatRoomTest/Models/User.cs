@@ -15,14 +15,14 @@ namespace ChatRoomTest.Models
         public DateTimeOffset CreationDate { get; private set; }
 
         //To create self referencing many-to-many UserRelations
-        public ICollection<UserRelation> UserARelations { get; private set; }
-        public ICollection<UserRelation> UserBRelations { get; private set; }
+        public List<UserRelation> UserARelations { get; private set; }
+        public List<UserRelation> UserBRelations { get; private set; }
 
 
         //To  Create self referencing many-to-many message
 
-        public ICollection<Message> FromMessages { get; private set; }
-        public ICollection<Message> ToMessages { get; private set; }
+        public List<Message> FromMessages { get; private set; }
+        public List<Message> ToMessages { get; private set; }
 
 
         #endregion

@@ -8,7 +8,8 @@ namespace ChatRoomTest.MyContext
     public class ChatRoomContext:DbContext
     {
         public DbSet<User> Users { get; set; }
-    
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<UserRelation>  UserRelations { get; set; }
 
         public ChatRoomContext(DbContextOptions<ChatRoomContext> options) : base(options)
         {
